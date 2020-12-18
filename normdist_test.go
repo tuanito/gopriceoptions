@@ -2,11 +2,12 @@ package gopriceoptions
 
 import (
 	"fmt"
+	"github.com/tuanito/gopriceoptions"
 	"testing"
 )
 
 func TestErrFunc(t *testing.T) {
-	ef := Errf(0.56)
+	ef := gopriceoptions.Errf(0.56)
 	efx := 0.5716157766617889
 	msg := fmt.Sprintf("for errfunc, got %f, expected %f\n", ef, efx)
 	if ef != efx {
