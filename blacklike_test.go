@@ -108,3 +108,19 @@ func TestBSImpVol(t *testing.T) {
 	}
 	fmt.Print(msg)
 }
+
+func TestCallBSImpVol(t *testing.T) {
+	p := 5263.93
+	s := 22415.85
+	k := 24000.00
+	time := 0.5178082 // date 12/19/2017, expiration 1/19/2018, 31 days
+	r := 0.18
+	q := 0.0
+	biv := gopriceoptions.BSImpliedVol(true, p, s, k, time, 0.0, r, q)
+	msg := fmt.Sprintf("TestBSImpVol, implied vol %f \n", biv)
+	diff := math.Abs(biv - 0.7)
+	if diff > 0.00001 {
+		t.Error(msg)
+	}
+	fmt.Print(msg)
+}
