@@ -18,6 +18,8 @@ type normdist struct {
 	twostddevsq float64
 }
 
+var Stdnorm *normdist = NewNormdist(0.0, 1.0)
+
 func NewNormdist(m float64, s float64) *normdist {
 	n := &normdist{
 		stddev: s,
@@ -88,5 +90,3 @@ func Errf(z float64) float64 {
 	}
 	return -ans
 }
-
-var Stdnorm *normdist = NewNormdist(0.0, 1.0)

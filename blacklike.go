@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-var sqtwopi float64 = math.Sqrt(2 * math.Pi)
+var sqtwopi float64 = math.Sqrt(2.0 * math.Pi)
 var IVPrecision = 0.00001
 
 func PriceBlackScholes(callType bool, underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
@@ -14,12 +14,12 @@ func PriceBlackScholes(callType bool, underlying float64, strike float64, timeTo
 		if timeToExpiration <= 0 {
 			return math.Abs(underlying - strike)
 		}
-		sign = 1
+		sign = 1.0
 	} else {
 		if timeToExpiration <= 0 {
 			return math.Abs(strike - underlying)
 		}
-		sign = -1
+		sign = -1.0
 	}
 
 	if sign == 0 {
@@ -61,9 +61,9 @@ func d1pdff(underlying float64, strike float64, timeToExpiration float64, volati
 func BSDelta(callType bool, underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
 	var zo float64
 	if !callType {
-		zo = -1
+		zo = -1.0
 	} else {
-		zo = 0
+		zo = 0.0
 	}
 
 	drq := math.Exp(-dividend * timeToExpiration)
@@ -94,17 +94,17 @@ func BSTheta(callType bool, underlying float64, strike float64, timeToExpiration
 
 	var sign float64
 	if !callType {
-		sign = -1
+		sign = -1.0
 	} else {
-		sign = 1
+		sign = 1.0
 	}
 
 	sqt := math.Sqrt(timeToExpiration)
 	drq := math.Exp(-dividend * timeToExpiration)
 	dr := math.Exp(-riskFreeInterest * timeToExpiration)
 	d1pdf := d1pdff(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend)
-	twosqt := 2 * sqt
-	p1 := -1 * ((underlying * volatility * drq) / twosqt) * d1pdf
+	twosqt := 2.0 * sqt
+	p1 := -1.0 * ((underlying * volatility * drq) / twosqt) * d1pdf
 
 	vt := volatility * (sqt)
 	d1 := d1f(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend, vt)
@@ -118,20 +118,20 @@ func BSTheta(callType bool, underlying float64, strike float64, timeToExpiration
 
 	p2 := -sign * riskFreeInterest * strike * dr * nd2
 	p3 := sign * dividend * underlying * drq * nd1
-	theta := (p1 + p2 + p3) / 365
+	theta := (p1 + p2 + p3) / 365.0
 	return theta
 }
 
 func BSRho(callType bool, underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
 	var sign float64
 	if !callType {
-		sign = -1
+		sign = -1.0
 	} else {
-		sign = 1
+		sign = 1.0
 	}
 
 	dr := math.Exp(-riskFreeInterest * timeToExpiration)
-	p1 := sign * (strike * timeToExpiration * dr) / 100
+	p1 := sign * (strike * timeToExpiration * dr) / 100.0
 
 	vt := volatility * (math.Sqrt(timeToExpiration))
 	d1 := d1f(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend, vt)
@@ -142,7 +142,7 @@ func BSRho(callType bool, underlying float64, strike float64, timeToExpiration f
 }
 
 func BSImpliedVol(callType bool, lastTradedPrice float64, underlying float64, strike float64, timeToExpiration float64, startAnchorVolatility float64, riskFreeInterest float64, dividend float64) float64 {
-	if startAnchorVolatility > 0 == false {
+	if startAnchorVolatility > 0.0 == false {
 		startAnchorVolatility = 0.5
 	}
 	errlim := IVPrecision
