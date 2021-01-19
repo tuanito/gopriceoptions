@@ -1,8 +1,8 @@
-package gopriceoptions
+package pricing
 
 import (
 	"fmt"
-	"github.com/tuanito/gopriceoptions"
+	"github.com/tuanito/gopriceoptions/pkg/pricing"
 	"math"
 	"testing"
 )
@@ -14,7 +14,7 @@ func TestBlackCall1(t *testing.T) {
 	v := 0.20
 	r := 0.0135
 	q := 0.0
-	bsprice := gopriceoptions.PriceBlackScholes(true, s, k, time, v, r, q)
+	bsprice := pricing.BlackScholes(true, s, k, time, v, r, q)
 	eprice := 20.29616303951127
 	msg := fmt.Sprintf("TestBlackCall1, got %f, expected %f\n", bsprice, eprice)
 	if bsprice != eprice {
@@ -30,7 +30,7 @@ func TestBlackPut1(t *testing.T) {
 	v := 0.25
 	r := 0.0135
 	q := 0.0
-	bsprice := gopriceoptions.PriceBlackScholes(false, s, k, time, v, r, q)
+	bsprice := pricing.BlackScholes(false, s, k, time, v, r, q)
 	eprice := 0.2707906395245452
 	msg := fmt.Sprintf("TestBlackPut1, got %f, expected %f\n", bsprice, eprice)
 	if bsprice != eprice {
@@ -48,11 +48,11 @@ func TestBSCallGreeks(t *testing.T) {
 	v := 0.20
 	r := 0.0135
 	q := 0.0
-	delta := gopriceoptions.BSDelta(true, s, k, time, v, r, q)
-	gamma := gopriceoptions.BSGamma(s, k, time, v, r, q)
-	vega := gopriceoptions.BSVega(s, k, time, v, r, q)
-	theta := gopriceoptions.BSTheta(true, s, k, time, v, r, q)
-	rho := gopriceoptions.BSRho(true, s, k, time, v, r, q)
+	delta := pricing.BSDelta(true, s, k, time, v, r, q)
+	gamma := pricing.BSGamma(s, k, time, v, r, q)
+	vega := pricing.BSVega(s, k, time, v, r, q)
+	theta := pricing.BSTheta(true, s, k, time, v, r, q)
+	rho := pricing.BSRho(true, s, k, time, v, r, q)
 	msg := fmt.Sprintf("TestBSCallGreeks, delta %.24f, gamma %f, vega %f, theta %f, rho %f\n", delta, gamma, vega, theta, rho)
 	edelta := 0.4197454548230388
 	egamma := 0.005694
@@ -73,11 +73,11 @@ func TestBSPutGreeks(t *testing.T) {
 	v := 0.25
 	r := 0.0135
 	q := 0.0
-	delta := gopriceoptions.BSDelta(false, s, k, time, v, r, q)
-	gamma := gopriceoptions.BSGamma(s, k, time, v, r, q)
-	vega := gopriceoptions.BSVega(s, k, time, v, r, q)
-	theta := gopriceoptions.BSTheta(false, s, k, time, v, r, q)
-	rho := gopriceoptions.BSRho(false, s, k, time, v, r, q)
+	delta := pricing.BSDelta(false, s, k, time, v, r, q)
+	gamma := pricing.BSGamma(s, k, time, v, r, q)
+	vega := pricing.BSVega(s, k, time, v, r, q)
+	theta := pricing.BSTheta(false, s, k, time, v, r, q)
+	rho := pricing.BSRho(false, s, k, time, v, r, q)
 	msg := fmt.Sprintf("TestBSPutGreeks, delta %.24f, gamma %f, vega %f, theta %f, rho %f\n", delta, gamma, vega, theta, rho)
 	edelta := -0.04150437210202529
 	egamma := 0.005675
@@ -100,7 +100,7 @@ func TestBSImpVol(t *testing.T) {
 	time := 0.084931506849315 // date 12/19/2017, expiration 1/19/2018, 31 days
 	r := 0.0135
 	q := 0.0
-	biv := gopriceoptions.BSImpliedVol(true, p, s, k, time, 0.0, r, q)
+	biv := pricing.BSImpliedVol(true, p, s, k, time, 0.0, r, q)
 	msg := fmt.Sprintf("TestBSImpVol, implied vol %f \n", biv)
 	diff := math.Abs(biv - 0.20)
 	if diff > 0.00001 {
@@ -116,10 +116,26 @@ func TestCallBSImpVol(t *testing.T) {
 	time := 0.5178082 // date 12/19/2017, expiration 1/19/2018, 31 days
 	r := 0.18
 	q := 0.0
-	biv := gopriceoptions.BSImpliedVol(true, p, s, k, time, 0.0, r, q)
+	biv := pricing.BSImpliedVol(true, p, s, k, time, 0.0, r, q)
 	msg := fmt.Sprintf("TestBSImpVol, implied vol %f \n", biv)
-	diff := math.Abs(biv - 0.7)
+	diff := math.Abs(biv - 0.79478)
 	if diff > 0.00001 {
+		t.Error(msg)
+	}
+	fmt.Print(msg)
+}
+
+func TestPutBSImpVol(t *testing.T) {
+	p := 4711.72
+	s := 22415.85
+	k := 24000.00
+	time := 0.5178082 // date 12/19/2017, expiration 1/19/2018, 31 days
+	r := 0.18
+	q := 0.0
+	biv := pricing.BSImpliedVol(false, p, s, k, time, 0.0, r, q)
+	msg := fmt.Sprintf("TestBSImpVol, implied vol %f \n", biv)
+	diff := math.Abs(biv - 0.79478)
+	if diff > 0.001 {
 		t.Error(msg)
 	}
 	fmt.Print(msg)

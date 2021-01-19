@@ -1,13 +1,14 @@
-package gopriceoptions
+package pricing
 
 import (
+	"github.com/tuanito/gopriceoptions/pkg/stats"
 	"math"
 )
 
 var sqtwopi float64 = math.Sqrt(2.0 * math.Pi)
 var IVPrecision = 0.00001
 
-func PriceBlackScholes(callType bool, underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
+func BlackScholes(callType bool, underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
 
 	var sign float64
 	if callType {
@@ -33,8 +34,8 @@ func PriceBlackScholes(callType bool, underlying float64, strike float64, timeTo
 	d2 := d2f(d1, vt)
 	d1 = sign * d1
 	d2 = sign * d2
-	nd1 := Stdnorm.Cdf(d1)
-	nd2 := Stdnorm.Cdf(d2)
+	nd1 := stats.Stdnorm.Cdf(d1)
+	nd2 := stats.Stdnorm.Cdf(d2)
 
 	bsprice := sign * ((underlying * qe * nd1) - (strike * re * nd2))
 	return bsprice
@@ -50,6 +51,7 @@ func d2f(d1 float64, volatilityWithExpiration float64) float64 {
 	d2 := d1 - volatilityWithExpiration
 	return d2
 }
+
 func d1pdff(underlying float64, strike float64, timeToExpiration float64, volatility float64, riskFreeInterest float64, dividend float64) float64 {
 	vt := volatility * (math.Sqrt(timeToExpiration))
 	d1 := d1f(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend, vt)
@@ -69,7 +71,7 @@ func BSDelta(callType bool, underlying float64, strike float64, timeToExpiration
 	drq := math.Exp(-dividend * timeToExpiration)
 	vt := volatility * (math.Sqrt(timeToExpiration))
 	d1 := d1f(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend, vt)
-	cdfd1 := Stdnorm.Cdf(d1)
+	cdfd1 := stats.Stdnorm.Cdf(d1)
 	delta := drq * (cdfd1 + zo)
 	return delta
 }
@@ -113,8 +115,8 @@ func BSTheta(callType bool, underlying float64, strike float64, timeToExpiration
 
 	d1 = sign * d1
 	d2 = sign * d2
-	nd1 = Stdnorm.Cdf(d1)
-	nd2 = Stdnorm.Cdf(d2)
+	nd1 = stats.Stdnorm.Cdf(d1)
+	nd2 = stats.Stdnorm.Cdf(d2)
 
 	p2 := -sign * riskFreeInterest * strike * dr * nd2
 	p3 := sign * dividend * underlying * drq * nd1
@@ -136,7 +138,7 @@ func BSRho(callType bool, underlying float64, strike float64, timeToExpiration f
 	vt := volatility * (math.Sqrt(timeToExpiration))
 	d1 := d1f(underlying, strike, timeToExpiration, volatility, riskFreeInterest, dividend, vt)
 	d2 := sign * d2f(d1, vt)
-	nd2 := Stdnorm.Cdf(d2)
+	nd2 := stats.Stdnorm.Cdf(d2)
 	rho := p1 * nd2
 	return rho
 }
@@ -152,7 +154,7 @@ func BSImpliedVol(callType bool, lastTradedPrice float64, underlying float64, st
 	maxloops := 100
 
 	for ; math.Abs(dv) > errlim && n < maxl; n++ {
-		difval := PriceBlackScholes(callType, underlying, strike, timeToExpiration, startAnchorVolatility, riskFreeInterest, dividend) - lastTradedPrice
+		difval := BlackScholes(callType, underlying, strike, timeToExpiration, startAnchorVolatility, riskFreeInterest, dividend) - lastTradedPrice
 		v1 := BSVega(underlying, strike, timeToExpiration, startAnchorVolatility, riskFreeInterest, dividend) / 0.01
 		dv = difval / v1
 		startAnchorVolatility = startAnchorVolatility - dv

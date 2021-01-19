@@ -1,4 +1,4 @@
-package gopriceoptions
+package stats
 
 // references:
 // https://github.com/chobie/go-gaussian/blob/master/gaussian.go
@@ -9,13 +9,13 @@ import (
 )
 
 var sqrt2 float64 = math.Pow(2, 0.5)
-var toomanydev float64 = 8
+var maxNumberOfStandardDeviations float64 = 8.0
 
 type normdist struct {
 	stddev      float64
 	mean        float64
-	stddevsqpi  float64
-	twostddevsq float64
+	stddevsqpi  float64 // sqrt(2 x pi)
+	twostddevsq float64 // 2.0 x std x std
 }
 
 var Stdnorm *normdist = NewNormdist(0.0, 1.0)
@@ -25,11 +25,11 @@ func NewNormdist(m float64, s float64) *normdist {
 		stddev: s,
 		mean:   m,
 	}
-	n.stddevsqpi = s * math.Pow((2*math.Pi), 0.5)
-	if s == 1 {
-		n.twostddevsq = 2
+	n.stddevsqpi = s * math.Pow((2.0*math.Pi), 0.5)
+	if s == 1.0 {
+		n.twostddevsq = 2.0
 	} else {
-		n.twostddevsq = 2 * (s * s)
+		n.twostddevsq = 2.0 * (s * s)
 	}
 	return n
 }
@@ -60,7 +60,7 @@ func (n *normdist) Pdf(x float64) float64 {
 
 func (n *normdist) Cdf(x float64) float64 {
 	dist := x - n.mean
-	if math.Abs(dist) > toomanydev*n.stddev {
+	if math.Abs(dist) > maxNumberOfStandardDeviations*n.stddev {
 		if x < n.mean {
 			return 0.0
 		} else {
